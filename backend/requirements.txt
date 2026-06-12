@@ -1,0 +1,11 @@
+ 
+fastapi
+uvicorn[standard]
+langgraph
+langchain
+langchain-core
+langchain-anthropic
+anthropic
+python-dotenv
+pydantic
+websockets

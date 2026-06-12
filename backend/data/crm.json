@@ -1,0 +1,304 @@
+{
+    "customers": [
+        {
+            "customer_id": "CUST001",
+            "name": "James Carter",
+            "email": "james.carter@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0101",
+            "joined": "2023-03-10",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-001",
+                    "product": "Wireless Noise-Cancelling Headphones",
+                    "category": "electronics",
+                    "purchase_date": "2026-05-28",
+                    "amount": 129.99,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST002",
+            "name": "Sara Mitchell",
+            "email": "sara.m@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0102",
+            "joined": "2022-11-01",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-002",
+                    "product": "Yoga Mat Pro",
+                    "category": "fitness",
+                    "purchase_date": "2026-04-28",
+                    "amount": 59.99,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST003",
+            "name": "David Nguyen",
+            "email": "david.nguyen@email.com",
+            "tier": "premium",
+            "phone": "+1-555-0103",
+            "joined": "2021-07-22",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-003",
+                    "product": "Smart Coffee Maker",
+                    "category": "appliances",
+                    "purchase_date": "2026-04-23",
+                    "amount": 219.00,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST004",
+            "name": "Emily Ross",
+            "email": "emily.ross@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0104",
+            "joined": "2024-01-15",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-004",
+                    "product": "Minimalist Leather Wallet",
+                    "category": "accessories",
+                    "purchase_date": "2026-06-09",
+                    "amount": 34.99,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST005",
+            "name": "Marcus Bell",
+            "email": "marcus.bell@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0105",
+            "joined": "2023-08-30",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-005",
+                    "product": "Portable Bluetooth Speaker",
+                    "category": "electronics",
+                    "purchase_date": "2026-06-02",
+                    "amount": 89.99,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST006",
+            "name": "Priya Sharma",
+            "email": "priya.s@email.com",
+            "tier": "vip",
+            "phone": "+1-555-0106",
+            "joined": "2020-05-18",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-006",
+                    "product": "Standing Desk Converter",
+                    "category": "furniture",
+                    "purchase_date": "2026-03-19",
+                    "amount": 349.00,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST007",
+            "name": "Kevin Turner",
+            "email": "kevin.t@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0107",
+            "joined": "2023-12-01",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-007",
+                    "product": "Adobe Creative Suite Annual License",
+                    "category": "software",
+                    "purchase_date": "2026-05-30",
+                    "amount": 599.99,
+                    "status": "activated",
+                    "is_digital": true,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST008",
+            "name": "Laura Gonzalez",
+            "email": "laura.g@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0108",
+            "joined": "2022-06-14",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-008",
+                    "product": "Winter Jacket (Clearance)",
+                    "category": "clothing",
+                    "purchase_date": "2026-05-25",
+                    "amount": 39.99,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": true
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST009",
+            "name": "Ryan Patel",
+            "email": "ryan.patel@email.com",
+            "tier": "premium",
+            "phone": "+1-555-0109",
+            "joined": "2021-03-07",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-009",
+                    "product": "Espresso Machine Deluxe",
+                    "category": "appliances",
+                    "purchase_date": "2026-05-23",
+                    "amount": 299.00,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST010",
+            "name": "Natalie Brooks",
+            "email": "natalie.b@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0110",
+            "joined": "2023-02-20",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-010",
+                    "product": "Running Shoes X200",
+                    "category": "footwear",
+                    "purchase_date": "2026-05-08",
+                    "amount": 110.00,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST011",
+            "name": "Alex Thompson",
+            "email": "alex.t@email.com",
+            "tier": "vip",
+            "phone": "+1-555-0111",
+            "joined": "2019-11-11",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-011",
+                    "product": "4K Monitor UltraWide 34\"",
+                    "category": "electronics",
+                    "purchase_date": "2026-04-13",
+                    "amount": 479.00,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST012",
+            "name": "Olivia Chen",
+            "email": "olivia.chen@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0112",
+            "joined": "2022-09-05",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-012",
+                    "product": "Professional DSLR Camera Kit",
+                    "category": "electronics",
+                    "purchase_date": "2026-05-18",
+                    "amount": 849.99,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST013",
+            "name": "Samuel White",
+            "email": "sam.white@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0113",
+            "joined": "2024-03-01",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-013",
+                    "product": "Desk Lamp LED",
+                    "category": "home",
+                    "purchase_date": "2026-06-01",
+                    "amount": 45.00,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST014",
+            "name": "Fatima Al-Hassan",
+            "email": "fatima.h@email.com",
+            "tier": "premium",
+            "phone": "+1-555-0114",
+            "joined": "2021-08-19",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-014",
+                    "product": "Ergonomic Office Chair",
+                    "category": "furniture",
+                    "purchase_date": "2026-04-18",
+                    "amount": 375.00,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        },
+        {
+            "customer_id": "CUST015",
+            "name": "Jordan Lee",
+            "email": "jordan.lee@email.com",
+            "tier": "standard",
+            "phone": "+1-555-0115",
+            "joined": "2023-06-25",
+            "orders": [
+                {
+                    "order_id": "ORD-2026-015",
+                    "product": "Mechanical Keyboard TKL",
+                    "category": "electronics",
+                    "purchase_date": "2026-06-05",
+                    "amount": 145.00,
+                    "status": "delivered",
+                    "is_digital": false,
+                    "is_sale_item": false
+                }
+            ]
+        }
+    ]
+}
