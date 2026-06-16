@@ -12,7 +12,6 @@
     <a href="#tech-stack"><img src="https://img.shields.io/badge/FastAPI-0.115+-009688.svg?style=flat-square&logo=fastapi" alt="FastAPI" /></a>
     <a href="#tech-stack"><img src="https://img.shields.io/badge/React-19.2-61DAFB.svg?style=flat-square&logo=react" alt="React" /></a>
     <a href="#tech-stack"><img src="https://img.shields.io/badge/LangGraph-0.2-FF9900.svg?style=flat-square" alt="LangGraph" /></a>
-    <a href="#license"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
   </p>
 </div>
 
@@ -191,21 +190,6 @@ The agent is pre-configured to handle various edge cases based on the mock data.
 
 ---
 
-## 🐳 Docker Deployment
-
-> **TODO:** Add Dockerfile and `docker-compose.yml` for containerized deployment.
-> 
-> *Planned implementation will include multi-stage builds for the Vite frontend and the FastAPI backend.*
-
----
-
-## 🧪 Testing
-
-> **TODO:** Add comprehensive test suite using `pytest` for the backend agent logic and `Vitest` for frontend components.
-> 
-> *Run tests using:* `uv run pytest` (Coming Soon)
-
----
 
 ## 🗺️ Roadmap
 
@@ -228,13 +212,6 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/AmazingFeature`).
 5. Open a Pull Request.
 
----
-
-## 📄 License
-
-> **TODO:** Add `LICENSE` file to the repository.
-> 
-> This project is currently unlicensed. Please add an appropriate open-source license (e.g., MIT, Apache 2.0).
 
 ---
 
