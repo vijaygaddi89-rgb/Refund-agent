@@ -1,156 +1,87 @@
-"""
-routers/chat.py
----------------
-FastAPI router for the customer-facing chat interface.
+import logging
 
-Endpoints:
-  POST /api/chat          → single-turn request/response (simple polling UI)
-  WebSocket /api/ws/{id} → real-time streaming of agent reasoning steps
-"""
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
-import asyncio
-import json
-import uuid
-from typing import List, Optional
+from agent.graph import process_message
+from database import get_db
+from models import Conversation, Message
+from schemas import ChatRequest, ChatResponse, ConversationHistoryResponse, MessageOut
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from pydantic import BaseModel
+logger = logging.getLogger(__name__)
 
-# Import the agent runner (runs in a thread pool since it's sync)
-from agent.graph import run_agent
-
-router = APIRouter()
+router = APIRouter(prefix="/chat", tags=["chat"])
 
 
-# ── Request / Response models ─────────────────────────────────────────────────
-
-class ChatMessage(BaseModel):
-    role: str       # "user" or "assistant"
-    content: str
-
-
-class ChatRequest(BaseModel):
-    message: str
-    history: Optional[List[ChatMessage]] = []
-
-
-class ChatResponse(BaseModel):
-    response: str
-    reasoning_log: list
-    final_decision: Optional[str] = None
-    session_id: str
-
-
-# ── REST endpoint ─────────────────────────────────────────────────────────────
-
-@router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+@router.post(
+    "/message",
+    response_model=ChatResponse,
+    summary="Send a message to the AI support agent",
+)
+async def send_message(
+    request: ChatRequest,
+    db: Session = Depends(get_db),
+) -> ChatResponse:
     """
-    Synchronous chat endpoint.
-    Runs the full LangGraph agent loop and returns when complete.
+    Send a user message and receive the agent's response.
+    The agent will autonomously look up customer data, check policy,
+    and approve/deny/escalate refund requests.
     """
-    history_dicts = [
-        {"role": msg.role, "content": msg.content}
-        for msg in (request.history or [])
-    ]
-
-    # Run in thread pool so we don't block the event loop
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(
-        None,
-        lambda: run_agent(request.message, history_dicts)
-    )
-
-    return ChatResponse(
-        response=result["response"],
-        reasoning_log=result["reasoning_log"],
-        final_decision=result.get("final_decision"),
-        session_id=str(uuid.uuid4()),
-    )
-
-
-# ── WebSocket endpoint ────────────────────────────────────────────────────────
-
-class ConnectionManager:
-    """Manages active WebSocket connections."""
-    def __init__(self):
-        self.active: dict[str, WebSocket] = {}
-
-    async def connect(self, session_id: str, websocket: WebSocket):
-        await websocket.accept()
-        self.active[session_id] = websocket
-
-    def disconnect(self, session_id: str):
-        self.active.pop(session_id, None)
-
-    async def send_json(self, session_id: str, data: dict):
-        ws = self.active.get(session_id)
-        if ws:
-            await ws.send_json(data)
-
-
-manager = ConnectionManager()
-
-
-@router.websocket("/ws/{session_id}")
-async def websocket_chat(websocket: WebSocket, session_id: str):
-    """
-    WebSocket endpoint for real-time streaming.
-
-    Message protocol (client → server):
-        { "message": "...", "history": [...] }
-
-    Message protocol (server → client):
-        { "type": "log",      "data": { log entry } }   ← reasoning step
-        { "type": "response", "data": { response, final_decision } }
-        { "type": "error",    "data": { "message": "..." } }
-        { "type": "status",   "data": { "status": "processing"|"done" } }
-    """
-    await manager.connect(session_id, websocket)
+    if not request.message.strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Message cannot be empty.",
+        )
 
     try:
-        while True:
-            # Wait for a message from the client
-            raw = await websocket.receive_text()
-            payload = json.loads(raw)
+        return await process_message(
+            session_id=request.session_id,
+            user_message=request.message.strip(),
+            db=db,
+        )
+    except Exception as exc:
+        logger.error("Error in /chat/message: %s", exc, exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Agent processing failed. Please try again.",
+        )
 
-            user_message = payload.get("message", "")
-            history = payload.get("history", [])
 
-            # Notify client that processing has started
-            await websocket.send_json({"type": "status", "data": {"status": "processing"}})
+@router.get(
+    "/{conversation_id}/history",
+    response_model=ConversationHistoryResponse,
+    summary="Retrieve full conversation history",
+)
+def get_history(
+    conversation_id: str,
+    db: Session = Depends(get_db),
+) -> ConversationHistoryResponse:
+    conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
 
-            # Run agent in thread pool
-            loop = asyncio.get_event_loop()
+    return ConversationHistoryResponse(
+        conversation_id=conv.id,
+        session_id=conv.session_id,
+        customer_id=conv.customer_id,
+        customer_name=conv.customer_name,
+        status=conv.status,
+        created_at=conv.created_at,
+        messages=[MessageOut.model_validate(m) for m in conv.messages],
+    )
 
-            try:
-                result = await loop.run_in_executor(
-                    None,
-                    lambda: run_agent(user_message, history)
-                )
 
-                # Stream each reasoning log entry
-                for log_entry in result["reasoning_log"]:
-                    await websocket.send_json({"type": "log", "data": log_entry})
-                    await asyncio.sleep(0.05)  # small delay for visual streaming effect
-
-                # Send final response
-                await websocket.send_json({
-                    "type": "response",
-                    "data": {
-                        "response": result["response"],
-                        "final_decision": result.get("final_decision"),
-                    }
-                })
-
-            except Exception as e:
-                await websocket.send_json({
-                    "type": "error",
-                    "data": {"message": str(e)}
-                })
-
-            # Notify done
-            await websocket.send_json({"type": "status", "data": {"status": "done"}})
-
-    except WebSocketDisconnect:
-        manager.disconnect(session_id)
+@router.delete(
+    "/{conversation_id}",
+    summary="Close/end a conversation",
+)
+def close_conversation(
+    conversation_id: str,
+    db: Session = Depends(get_db),
+) -> dict:
+    conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+    conv.status = "closed"
+    db.commit()
+    return {"status": "closed", "conversation_id": conversation_id}

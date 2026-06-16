@@ -1,290 +1,316 @@
- 
 """
-graph.py
---------
-The LangGraph state machine for the refund agent.
+backend/agent/graph.py
+-----------------------
+Orchestration layer between FastAPI routers and the LangGraph agent.
 
-Graph shape:
-  START → agent_node → (tool_node → agent_node)* → END
-
-- agent_node: calls Claude with tools bound. Claude decides whether to
-  call a tool or produce a final response.
-- tool_node: executes whichever tool Claude chose and appends the result
-  back into state.messages.
-- The loop repeats until Claude stops calling tools (i.e., produces a
-  plain text response = final answer).
-
-This is the standard ReAct (Reason + Act) loop pattern.
+Uses LangGraph with ChatLiteLLM.
 """
 
+import asyncio
 import json
-from datetime import datetime
-from typing import Literal
+import logging
+import os
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, Optional
 
-from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import SystemMessage, ToolMessage, AIMessage, HumanMessage
-from langgraph.graph import StateGraph, START, END
-from langgraph.prebuilt import ToolNode
+from dotenv import load_dotenv
+from sqlalchemy.orm import Session
 
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, ToolMessage
+from langgraph.prebuilt import create_react_agent
+
+from database import get_db, SessionLocal, settings
+from event_bus import event_bus
+from models import Conversation, Message, RefundRequest
+from schemas import ChatResponse
 from agent.state import AgentState
-from agent.tools import ALL_TOOLS
+from agent.tools import AGENT_TOOLS
 from agent.prompts import SYSTEM_PROMPT
 
-# ── Model setup ───────────────────────────────────────────────────────────────
-# Bind all tools to the model so Claude knows their schemas
-_model = ChatAnthropic(
-    model="claude-haiku-4-5-20251001",
-    temperature=0,          # deterministic — we want consistent policy enforcement
-    max_tokens=1024,
-)
-_model_with_tools = _model.bind_tools(ALL_TOOLS)
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
+
+logger = logging.getLogger(__name__)
+
+MODEL = os.getenv("MODEL_NAME", "gpt-4o")
+
+# ── LangGraph Definition ────────────────────────────────────────────────────────
+
+# Initialize model using the provider string natively supported by Langchain
+llm = init_chat_model(MODEL, max_tokens=1024)
+app_graph = create_react_agent(llm, tools=AGENT_TOOLS, prompt=SYSTEM_PROMPT)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Node 1: agent_node
-# Calls Claude. Claude either calls a tool or produces a final answer.
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Conversation helpers ───────────────────────────────────────────────────────
 
-def agent_node(state: AgentState) -> dict:
-    """
-    Core LLM node. Prepends the system prompt if this is the first turn,
-    then calls Claude with the full message history.
-
-    Returns a dict that LangGraph merges into state.
-    """
-    messages = state["messages"]
-
-    # Always inject system prompt as the first message
-    if not messages or not isinstance(messages[0], SystemMessage):
-        messages = [SystemMessage(content=SYSTEM_PROMPT)] + list(messages)
-
-    # Call the model
-    response = _model_with_tools.invoke(messages)
-
-    # Emit a reasoning log entry for every agent turn
-    log_entry = _build_log_entry(
-        step=len(state.get("reasoning_log", [])) + 1,
-        tool="agent_thinking",
-        input_data={"last_user_message": _get_last_user_message(state["messages"])},
-        output_data={
-            "response_type": "tool_call" if response.tool_calls else "final_answer",
-            "tool_calls": [tc["name"] for tc in response.tool_calls] if response.tool_calls else [],
-            "content_preview": str(response.content)[:200] if response.content else "",
-        },
+def get_or_create_conversation(session_id: str, db: Session) -> Conversation:
+    conv = (
+        db.query(Conversation)
+        .filter(Conversation.session_id == session_id, Conversation.status == "active")
+        .first()
     )
+    if not conv:
+        conv = Conversation(id=str(uuid.uuid4()), session_id=session_id)
+        db.add(conv)
+        db.commit()
+        db.refresh(conv)
+    return conv
 
-    return {
-        "messages": [response],
-        "reasoning_log": state.get("reasoning_log", []) + [log_entry],
+
+def _save_message(conv_id: str, role: str, content: str, db: Session) -> Message:
+    msg = Message(conversation_id=conv_id, role=role, content=content)
+    db.add(msg)
+    db.commit()
+    db.refresh(msg)
+    return msg
+
+
+# ── Event helpers ─────────────────────────────────────────────────────────────
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+async def _emit(session_id: str, event_type: str, data: dict) -> None:
+    """Push an event to the SSE event bus. Never raises."""
+    try:
+        await event_bus.publish(session_id, {
+            "type": event_type,
+            "data": data,
+            "timestamp": _now_iso(),
+        })
+    except Exception as e:
+        logger.warning("Event emit failed (%s): %s", event_type, e)
+
+
+# ── Public API ─────────────────────────────────────────────────────────────────
+
+async def process_message(
+    session_id: str,
+    user_message: str,
+    db: Session,
+) -> ChatResponse:
+    # 1. Conversation
+    conv = get_or_create_conversation(session_id, db)
+    conversation_id = conv.id
+
+    await event_bus.publish(session_id, {
+        "type": "processing_started",
+        "message": user_message[:100],
+        "timestamp": _now_iso(),
+    })
+
+    # 2. Save user message
+    _save_message(conversation_id, "user", user_message, db)
+    db.refresh(conv)
+
+    # 3. Build message history
+    initial_messages = []
+    for msg in conv.messages:
+        if msg.role == "user":
+            initial_messages.append(HumanMessage(content=msg.content))
+        else:
+            initial_messages.append(AIMessage(content=msg.content))
+
+    state = {
+        "messages": initial_messages,
+        "session_id": session_id,
+        "conversation_id": conversation_id,
+        "customer_id": conv.customer_id,
+        "customer_name": conv.customer_name,
+        "refund_decision": None,
+        "refund_amount": None,
+        "collected_events": []
     }
 
+    # 4. Run LangGraph loop
+    event_bus.subscribe(conversation_id)
+    collected_events = []
+    assistant_text = ""
+    iteration = 0
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Node 2: tool_node
-# LangGraph's built-in ToolNode handles tool execution automatically.
-# It reads the tool_calls from the last AIMessage, runs them, and
-# appends ToolMessage results back into state.messages.
-# ─────────────────────────────────────────────────────────────────────────────
+    await _emit(session_id, "thinking", {
+        "message": f"Agent starting — preparing to process refund request using {MODEL}...",
+    })
 
-def tool_node_with_logging(state: AgentState) -> dict:
-    """
-    Wraps LangGraph's ToolNode to add reasoning log entries for each tool call.
-    """
-    # Get the last AI message which contains tool_calls
-    last_message = state["messages"][-1]
-    tool_calls = getattr(last_message, "tool_calls", [])
+    try:
+        async for update in app_graph.astream(state, stream_mode="updates"):
+            if "agent" in update:
+                iteration += 1
+                await _emit(session_id, "thinking", {
+                    "message": f"Calling LLM ({MODEL}, iteration {iteration})...",
+                    "iteration": iteration,
+                })
+                
+                msg = update["agent"]["messages"][0]
+                
+                llm_event = {
+                    "type": "llm_response",
+                    "iteration": iteration,
+                    "content": msg.content or "",
+                }
+                await _emit(session_id, "llm_response", llm_event)
+                collected_events.append(llm_event)
+                
+                if getattr(msg, "tool_calls", None):
+                    for tc in msg.tool_calls:
+                        call_event = {
+                            "tool_name": tc["name"],
+                            "tool_input": tc["args"],
+                            "tool_use_id": tc["id"],
+                        }
+                        await _emit(session_id, "tool_call", call_event)
+                        collected_events.append({"type": "tool_call", **call_event})
+                else:
+                    # Final answer
+                    assistant_text = msg.content or "Your request has been processed."
+                    
+            elif "tools" in update:
+                msgs = update["tools"]["messages"]
+                for msg in msgs:
+                    result = getattr(msg, "artifact", None)
+                    if result is None:
+                        try:
+                            result = json.loads(msg.content)
+                        except Exception:
+                            import ast
+                            try:
+                                result = ast.literal_eval(msg.content)
+                            except Exception:
+                                result = msg.content
 
-    log_entries = []
-    for tc in tool_calls:
-        log_entry = _build_log_entry(
-            step=len(state.get("reasoning_log", [])) + len(log_entries) + 1,
-            tool=tc["name"],
-            input_data=tc.get("args", {}),
-            output_data="pending...",   # will be updated after execution
+                    result_event = {
+                        "tool_name": msg.name,
+                        "result": result,
+                        "tool_use_id": msg.tool_call_id,
+                    }
+                    await _emit(session_id, "tool_result", result_event)
+                    collected_events.append({"type": "tool_result", **result_event})
+                    
+    except Exception as e:
+        logger.exception("Agent loop error for session %s: %s", session_id, e)
+        assistant_text = "An unexpected error occurred. Please try again."
+        await _emit(session_id, "error", {"message": str(e)})
+    finally:
+        if assistant_text:
+            await _emit(session_id, "final_answer", {"text": assistant_text, "session_id": session_id})
+            collected_events.append({"type": "final_answer", "text": assistant_text, "session_id": session_id})
+            
+        await event_bus.publish(session_id, {
+            "type": "complete",
+            "timestamp": _now_iso(),
+        })
+
+    # 5. Save assistant response
+    if assistant_text:
+        _save_message(conversation_id, "assistant", assistant_text, db)
+
+    # 6. Update conversation context
+    customer_id: Optional[str] = conv.customer_id
+    customer_name: Optional[str] = conv.customer_name
+    refund_decision: Optional[str] = None
+    refund_amount: Optional[float] = None
+
+    for ev in collected_events:
+        if ev.get("type") == "tool_result":
+            result = ev.get("result", {})
+            if isinstance(result, dict):
+                if result.get("customer_id"):
+                    customer_id = result["customer_id"]
+                if result.get("customer_name"):
+                    customer_name = result["customer_name"]
+                if result.get("decision"):
+                    refund_decision = result["decision"]
+                if result.get("refund_amount") is not None:
+                    refund_amount = result["refund_amount"]
+
+    if customer_id and customer_id != conv.customer_id:
+        conv.customer_id = customer_id
+    if customer_name and customer_name != conv.customer_name:
+        conv.customer_name = customer_name
+    db.commit()
+
+    # 7. Persist refund request if a decision was reached
+    if refund_decision:
+        _persist_refund_request(
+            conv=conv,
+            customer_id=customer_id,
+            customer_name=customer_name,
+            refund_decision=refund_decision,
+            refund_amount=refund_amount,
+            collected_events=collected_events,
+            db=db,
         )
-        log_entries.append(log_entry)
 
-    # Run the actual tools using LangGraph's built-in executor
-    _tool_node = ToolNode(ALL_TOOLS)
-    result = _tool_node.invoke(state)
+    # 8. Persist event trace
+    await _save_trace(session_id, collected_events)
 
-    # Now update log entries with actual outputs
-    tool_messages = [m for m in result.get("messages", []) if isinstance(m, ToolMessage)]
-    for i, tm in enumerate(tool_messages):
-        if i < len(log_entries):
-            try:
-                log_entries[i]["output"] = json.loads(tm.content)
-            except Exception:
-                log_entries[i]["output"] = tm.content
-
-    return {
-        "messages": result.get("messages", []),
-        "reasoning_log": state.get("reasoning_log", []) + log_entries,
-    }
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Edge: should_continue
-# Decides whether to loop back to agent or stop.
-# ─────────────────────────────────────────────────────────────────────────────
-
-def should_continue(state: AgentState) -> Literal["tools", "end"]:
-    """
-    Routing function called after agent_node.
-
-    If the last message has tool_calls → go to tools node.
-    If it's a plain text response → we're done, go to END.
-    """
-    last_message = state["messages"][-1]
-    if hasattr(last_message, "tool_calls") and last_message.tool_calls:
-        return "tools"
-    return "end"
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Build the graph
-# ─────────────────────────────────────────────────────────────────────────────
-
-def build_graph():
-    """
-    Constructs and compiles the LangGraph state machine.
-
-    Graph flow:
-      START → agent → (if tool_calls) → tools → agent → ... → END
-    """
-    builder = StateGraph(AgentState)
-
-    # Register nodes
-    builder.add_node("agent", agent_node)
-    builder.add_node("tools", tool_node_with_logging)
-
-    # Edges
-    builder.add_edge(START, "agent")
-
-    # Conditional edge from agent: either call tools or finish
-    builder.add_conditional_edges(
-        "agent",
-        should_continue,
-        {
-            "tools": "tools",   # loop: go run the tools
-            "end": END,         # done: return final response
-        },
+    return ChatResponse(
+        conversation_id=conversation_id,
+        session_id=session_id,
+        message=assistant_text,
+        refund_decision=refund_decision,
+        refund_amount=refund_amount,
+        reasoning_steps=collected_events,
+        error=None,
     )
 
-    # After tools always go back to agent
-    builder.add_edge("tools", "agent")
 
-    return builder.compile()
+# ── Persistence helpers ────────────────────────────────────────────────────────
 
+def _persist_refund_request(
+    conv: Conversation,
+    customer_id: Optional[str],
+    customer_name: Optional[str],
+    refund_decision: str,
+    refund_amount: Optional[float],
+    collected_events: list,
+    db: Session,
+) -> None:
+    existing = (
+        db.query(RefundRequest)
+        .filter(
+            RefundRequest.conversation_id == conv.id,
+            RefundRequest.decision == refund_decision,
+        )
+        .first()
+    )
+    if existing:
+        return
 
-# ── Singleton graph instance ──────────────────────────────────────────────────
-# Compiled once at import time. Thread-safe for concurrent requests.
-graph = build_graph()
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Public API: run_agent
-# ─────────────────────────────────────────────────────────────────────────────
-
-def run_agent(user_message: str, history: list[dict] | None = None) -> dict:
-    """
-    Entry point called by the FastAPI chat router.
-
-    Args:
-        user_message: The customer's latest message
-        history: Optional list of prior messages in {"role", "content"} format
-
-    Returns:
-        {
-            "response": str,          # Claude's final reply to the customer
-            "reasoning_log": list,    # all log entries from this run
-            "final_decision": str,    # "approved" | "denied" | "partial" | "escalated" | None
-        }
-    """
-    from langchain_core.messages import HumanMessage, AIMessage
-
-    # Convert history to LangChain message objects
-    lc_messages = []
-    for msg in (history or []):
-        if msg["role"] == "user":
-            lc_messages.append(HumanMessage(content=msg["content"]))
-        elif msg["role"] == "assistant":
-            lc_messages.append(AIMessage(content=msg["content"]))
-
-    # Add current user message
-    lc_messages.append(HumanMessage(content=user_message))
-
-    # Initial state
-    initial_state: AgentState = {
-        "messages": lc_messages,
-        "customer_id": None,
-        "order_id": None,
-        "customer_data": None,
-        "order_data": None,
-        "refund_reason": None,
-        "policy_check_result": None,
-        "final_decision": None,
-        "reasoning_log": [],
-    }
-
-    # Run the graph
-    final_state = graph.invoke(initial_state)
-
-    # ── Extract Claude's final conversational reply ───────────────────────────
-    # IMPORTANT: Must use isinstance(AIMessage) — ToolMessage and HumanMessage
-    # also lack a `tool_calls` attribute so the old `hasattr` check was wrong.
-    ai_response = ""
-    for msg in reversed(final_state["messages"]):
-        if isinstance(msg, AIMessage) and not msg.tool_calls:
-            # Content can be a plain string or a list of blocks (Claude API)
-            if isinstance(msg.content, str) and msg.content.strip():
-                ai_response = msg.content
-                break
-            elif isinstance(msg.content, list):
-                for block in msg.content:
-                    if isinstance(block, dict) and block.get("type") == "text":
-                        text = block.get("text", "").strip()
-                        if text:
-                            ai_response = text
-                            break
-                if ai_response:
-                    break
-
-    # ── Extract final_decision from the process_refund tool output ────────────
-    # The state field isn't set by tools directly; read it from the log.
-    final_decision = final_state.get("final_decision")
-    if not final_decision:
-        for entry in reversed(final_state.get("reasoning_log", [])):
-            if entry.get("tool") == "process_refund":
-                output = entry.get("output", {})
-                if isinstance(output, dict) and output.get("decision"):
-                    final_decision = output["decision"]
-                    break
-
-    return {
-        "response": ai_response,
-        "reasoning_log": final_state.get("reasoning_log", []),
-        "final_decision": final_decision,
-    }
+    rr = RefundRequest(
+        conversation_id=conv.id,
+        customer_id=customer_id,
+        customer_name=customer_name,
+        decision=refund_decision,
+        refund_amount=refund_amount,
+        reasoning_log=collected_events,
+        processed_at=datetime.utcnow(),
+    )
+    db.add(rr)
+    db.commit()
+    logger.info(
+        "Refund request saved: conversation=%s decision=%s",
+        conv.id, refund_decision,
+    )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Helpers
-# ─────────────────────────────────────────────────────────────────────────────
-
-def _build_log_entry(step: int, tool: str, input_data: dict, output_data) -> dict:
-    return {
-        "step": step,
-        "tool": tool,
-        "input": input_data,
-        "output": output_data,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-    }
-
-
-def _get_last_user_message(messages: list) -> str:
-    from langchain_core.messages import HumanMessage
-    for msg in reversed(messages):
-        if isinstance(msg, HumanMessage):
-            return msg.content[:200]
-    return ""
+async def _save_trace(session_id: str, events: list[dict]) -> None:
+    try:
+        trace_json = json.dumps(events, default=str)
+        db = SessionLocal()
+        try:
+            record = db.query(RefundRequest).filter(
+                RefundRequest.conversation_id.in_(
+                    db.query(Conversation.id).filter(Conversation.session_id == session_id)
+                )
+            ).first()
+            if record:
+                record.reasoning_log = events
+                db.commit()
+        finally:
+            db.close()
+    except Exception as e:
+        logger.warning("Could not save trace for session %s: %s", session_id, e)

@@ -1,64 +1,99 @@
 """
-backend/main.py
----------------
-FastAPI application factory.
-
-Run with:
-    cd backend
-    uvicorn main:app --reload --port 8000
+FastAPI application entry point.
 """
+import logging
+from contextlib import asynccontextmanager
 
+import httpx
 import os
-from pathlib import Path
-
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Load .env from project root (one level above backend/)
-_root = Path(__file__).parent.parent
-load_dotenv(_root / ".env")
+from database import create_tables, settings
+from routers import admin, chat, stream
+from schemas import HealthResponse
 
-# Also try a local .env inside backend/
-load_dotenv(Path(__file__).parent / ".env")
+# ── Logging ───────────────────────────────────────────────────────────────────
 
-from routers.chat import router as chat_router
-from routers.admin import router as admin_router
+logging.basicConfig(
+    level=logging.DEBUG if settings.DEBUG else logging.INFO,
+    format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+)
+logger = logging.getLogger(__name__)
 
-# ── App creation ──────────────────────────────────────────────────────────────
+
+# ── Lifespan ──────────────────────────────────────────────────────────────────
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting Refund Agent API...")
+    create_tables()
+    logger.info("Database tables ready.")
+    yield
+    logger.info("Shutting down Refund Agent API.")
+
+
+# ── App ───────────────────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="ShopEasy Refund Agent API",
-    description="AI-powered customer support agent for processing e-commerce refunds.",
+    title="AI Customer Support Agent — Refund Processing",
+    description=(
+        "LangGraph-powered refund agent that processes e-commerce refund requests "
+        "strictly according to company policy. Backed by a mock CRM with 15 customer profiles."
+    ),
     version="1.0.0",
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-# Allow the Vite dev server (port 5173) and any other origin during development
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # lock this down in production
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 # ── Routers ───────────────────────────────────────────────────────────────────
 
-app.include_router(chat_router, prefix="/api", tags=["chat"])
-app.include_router(admin_router, prefix="/api", tags=["admin"])
+app.include_router(chat.router)
+app.include_router(stream.router)
+app.include_router(admin.router)
 
 
-# ── Health check ──────────────────────────────────────────────────────────────
+# ── Health ────────────────────────────────────────────────────────────────────
 
-@app.get("/health", tags=["health"])
-async def health():
-    return {"status": "ok", "service": "refund-agent"}
+@app.get("/health", response_model=HealthResponse, tags=["health"])
+async def health_check() -> HealthResponse:
+    return HealthResponse(
+        status="ok",
+        model=os.getenv("MODEL_NAME", "gpt-4o"),
+        db=settings.DATABASE_URL,
+    )
+
+
+@app.get("/", tags=["health"])
+async def root() -> dict:
+    return {
+        "service": "AI Refund Support Agent",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "health": "/health",
+    }
 
 
 # ── Dev runner ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "app.main:app",
+        host=settings.APP_HOST,
+        port=settings.APP_PORT,
+        reload=settings.DEBUG,
+        log_level="debug" if settings.DEBUG else "info",
+    )

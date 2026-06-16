@@ -1,302 +1,518 @@
 {
     "customers": [
         {
-            "customer_id": "CUST001",
-            "name": "James Carter",
-            "email": "james.carter@email.com",
-            "tier": "standard",
+            "customer_id": "CRM001",
+            "name": "Alice Johnson",
+            "email": "alice.johnson@email.com",
             "phone": "+1-555-0101",
-            "joined": "2023-03-10",
+            "account_status": "active",
+            "tier": "silver",
+            "member_since": "2022-03-15",
+            "total_orders": 8,
             "orders": [
                 {
-                    "order_id": "ORD-2026-001",
-                    "product": "Wireless Noise-Cancelling Headphones",
+                    "order_id": "ORD-20001",
+                    "product": "Sony WH-1000XM5 Wireless Headphones",
                     "category": "electronics",
-                    "purchase_date": "2026-05-28",
-                    "amount": 129.99,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST002",
-            "name": "Sara Mitchell",
-            "email": "sara.m@email.com",
-            "tier": "standard",
-            "phone": "+1-555-0102",
-            "joined": "2022-11-01",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-002",
-                    "product": "Yoga Mat Pro",
-                    "category": "fitness",
-                    "purchase_date": "2026-04-28",
-                    "amount": 59.99,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST003",
-            "name": "David Nguyen",
-            "email": "david.nguyen@email.com",
-            "tier": "premium",
-            "phone": "+1-555-0103",
-            "joined": "2021-07-22",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-003",
-                    "product": "Smart Coffee Maker",
-                    "category": "appliances",
-                    "purchase_date": "2026-04-23",
-                    "amount": 219.00,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST004",
-            "name": "Emily Ross",
-            "email": "emily.ross@email.com",
-            "tier": "standard",
-            "phone": "+1-555-0104",
-            "joined": "2024-01-15",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-004",
-                    "product": "Minimalist Leather Wallet",
-                    "category": "accessories",
-                    "purchase_date": "2026-06-09",
-                    "amount": 34.99,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST005",
-            "name": "Marcus Bell",
-            "email": "marcus.bell@email.com",
-            "tier": "standard",
-            "phone": "+1-555-0105",
-            "joined": "2023-08-30",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-005",
-                    "product": "Portable Bluetooth Speaker",
-                    "category": "electronics",
-                    "purchase_date": "2026-06-02",
-                    "amount": 89.99,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST006",
-            "name": "Priya Sharma",
-            "email": "priya.s@email.com",
-            "tier": "vip",
-            "phone": "+1-555-0106",
-            "joined": "2020-05-18",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-006",
-                    "product": "Standing Desk Converter",
-                    "category": "furniture",
-                    "purchase_date": "2026-03-19",
-                    "amount": 349.00,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST007",
-            "name": "Kevin Turner",
-            "email": "kevin.t@email.com",
-            "tier": "standard",
-            "phone": "+1-555-0107",
-            "joined": "2023-12-01",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-007",
-                    "product": "Adobe Creative Suite Annual License",
-                    "category": "software",
-                    "purchase_date": "2026-05-30",
-                    "amount": 599.99,
-                    "status": "activated",
-                    "is_digital": true,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST008",
-            "name": "Laura Gonzalez",
-            "email": "laura.g@email.com",
-            "tier": "standard",
-            "phone": "+1-555-0108",
-            "joined": "2022-06-14",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-008",
-                    "product": "Winter Jacket (Clearance)",
-                    "category": "clothing",
-                    "purchase_date": "2026-05-25",
-                    "amount": 39.99,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": true
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST009",
-            "name": "Ryan Patel",
-            "email": "ryan.patel@email.com",
-            "tier": "premium",
-            "phone": "+1-555-0109",
-            "joined": "2021-03-07",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-009",
-                    "product": "Espresso Machine Deluxe",
-                    "category": "appliances",
-                    "purchase_date": "2026-05-23",
-                    "amount": 299.00,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST010",
-            "name": "Natalie Brooks",
-            "email": "natalie.b@email.com",
-            "tier": "standard",
-            "phone": "+1-555-0110",
-            "joined": "2023-02-20",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-010",
-                    "product": "Running Shoes X200",
-                    "category": "footwear",
-                    "purchase_date": "2026-05-08",
-                    "amount": 110.00,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST011",
-            "name": "Alex Thompson",
-            "email": "alex.t@email.com",
-            "tier": "vip",
-            "phone": "+1-555-0111",
-            "joined": "2019-11-11",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-011",
-                    "product": "4K Monitor UltraWide 34\"",
-                    "category": "electronics",
-                    "purchase_date": "2026-04-13",
-                    "amount": 479.00,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST012",
-            "name": "Olivia Chen",
-            "email": "olivia.chen@email.com",
-            "tier": "standard",
-            "phone": "+1-555-0112",
-            "joined": "2022-09-05",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-012",
-                    "product": "Professional DSLR Camera Kit",
-                    "category": "electronics",
-                    "purchase_date": "2026-05-18",
-                    "amount": 849.99,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST013",
-            "name": "Samuel White",
-            "email": "sam.white@email.com",
-            "tier": "standard",
-            "phone": "+1-555-0113",
-            "joined": "2024-03-01",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-013",
-                    "product": "Desk Lamp LED",
-                    "category": "home",
-                    "purchase_date": "2026-06-01",
-                    "amount": 45.00,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST014",
-            "name": "Fatima Al-Hassan",
-            "email": "fatima.h@email.com",
-            "tier": "premium",
-            "phone": "+1-555-0114",
-            "joined": "2021-08-19",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-014",
-                    "product": "Ergonomic Office Chair",
-                    "category": "furniture",
-                    "purchase_date": "2026-04-18",
-                    "amount": 375.00,
-                    "status": "delivered",
-                    "is_digital": false,
-                    "is_sale_item": false
-                }
-            ]
-        },
-        {
-            "customer_id": "CUST015",
-            "name": "Jordan Lee",
-            "email": "jordan.lee@email.com",
-            "tier": "standard",
-            "phone": "+1-555-0115",
-            "joined": "2023-06-25",
-            "orders": [
-                {
-                    "order_id": "ORD-2026-015",
-                    "product": "Mechanical Keyboard TKL",
-                    "category": "electronics",
+                    "subcategory": "headphones",
+                    "amount": 349.99,
                     "purchase_date": "2026-06-05",
-                    "amount": 145.00,
+                    "delivery_date": "2026-06-07",
                     "status": "delivered",
+                    "is_sale_item": false,
                     "is_digital": false,
-                    "is_sale_item": false
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 0.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM002",
+            "name": "Bob Martinez",
+            "email": "bob.martinez@email.com",
+            "phone": "+1-555-0102",
+            "account_status": "active",
+            "tier": "bronze",
+            "member_since": "2021-07-20",
+            "total_orders": 12,
+            "orders": [
+                {
+                    "order_id": "ORD-20002",
+                    "product": "Dell Inspiron 15 Laptop",
+                    "category": "electronics",
+                    "subcategory": "laptop",
+                    "amount": 799.99,
+                    "purchase_date": "2026-04-20",
+                    "delivery_date": "2026-04-23",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 15.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM003",
+            "name": "Carol Chen",
+            "email": "carol.chen@email.com",
+            "phone": "+1-555-0103",
+            "account_status": "active",
+            "tier": "bronze",
+            "member_since": "2023-01-10",
+            "total_orders": 5,
+            "orders": [
+                {
+                    "order_id": "ORD-20003",
+                    "product": "Premium Winter Jacket",
+                    "category": "clothing",
+                    "subcategory": "outerwear",
+                    "amount": 189.99,
+                    "purchase_date": "2026-06-01",
+                    "delivery_date": "2026-06-03",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 9.99
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM004",
+            "name": "David Wilson",
+            "email": "david.wilson@email.com",
+            "phone": "+1-555-0104",
+            "account_status": "active",
+            "tier": "silver",
+            "member_since": "2020-11-05",
+            "total_orders": 25,
+            "orders": [
+                {
+                    "order_id": "ORD-20004",
+                    "product": "Nike Air Max Running Shoes",
+                    "category": "clothing",
+                    "subcategory": "footwear",
+                    "amount": 134.99,
+                    "purchase_date": "2026-03-10",
+                    "delivery_date": "2026-03-13",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 0.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM005",
+            "name": "Emma Davis",
+            "email": "emma.davis@email.com",
+            "phone": "+1-555-0105",
+            "account_status": "active",
+            "tier": "bronze",
+            "member_since": "2023-06-22",
+            "total_orders": 3,
+            "orders": [
+                {
+                    "order_id": "ORD-20005",
+                    "product": "Floral Summer Dress",
+                    "category": "clothing",
+                    "subcategory": "apparel",
+                    "amount": 39.99,
+                    "purchase_date": "2026-06-10",
+                    "delivery_date": "2026-06-12",
+                    "status": "delivered",
+                    "is_sale_item": true,
+                    "sale_discount_pct": 60,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 5.99
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM006",
+            "name": "Frank Thompson",
+            "email": "frank.thompson@email.com",
+            "phone": "+1-555-0106",
+            "account_status": "active",
+            "tier": "gold",
+            "member_since": "2021-04-18",
+            "total_orders": 18,
+            "orders": [
+                {
+                    "order_id": "ORD-20006",
+                    "product": "Samsung 55-inch 4K Smart TV",
+                    "category": "electronics",
+                    "subcategory": "television",
+                    "amount": 649.99,
+                    "purchase_date": "2026-05-20",
+                    "delivery_date": "2026-05-22",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": true,
+                    "condition_reported": "defective",
+                    "defect_description": "Screen has dead pixels and color distortion",
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 49.99
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM007",
+            "name": "Grace Kim",
+            "email": "grace.kim@email.com",
+            "phone": "+1-555-0107",
+            "account_status": "active",
+            "tier": "bronze",
+            "member_since": "2022-09-30",
+            "total_orders": 7,
+            "orders": [
+                {
+                    "order_id": "ORD-20007",
+                    "product": "Adobe Creative Suite License Key",
+                    "category": "digital",
+                    "subcategory": "software",
+                    "amount": 54.99,
+                    "purchase_date": "2026-06-08",
+                    "delivery_date": "2026-06-08",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": true,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": true,
+                    "download_timestamp": "2026-06-08T14:23:00",
+                    "refund_status": null,
+                    "shipping_cost": 0.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM008",
+            "name": "Henry Brown",
+            "email": "henry.brown@email.com",
+            "phone": "+1-555-0108",
+            "account_status": "active",
+            "tier": "silver",
+            "member_since": "2022-02-14",
+            "total_orders": 15,
+            "orders": [
+                {
+                    "order_id": "ORD-20008",
+                    "product": "Premium Monthly Subscription Plan",
+                    "category": "subscription",
+                    "subcategory": "monthly_plan",
+                    "amount": 29.99,
+                    "purchase_date": "2026-06-10",
+                    "delivery_date": "2026-06-10",
+                    "status": "active",
+                    "is_sale_item": false,
+                    "is_digital": true,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "subscription_end_date": "2026-07-10",
+                    "days_used": 5,
+                    "refund_status": null,
+                    "shipping_cost": 0.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM009",
+            "name": "Isabella Garcia",
+            "email": "isabella.garcia@email.com",
+            "phone": "+1-555-0109",
+            "account_status": "active",
+            "tier": "bronze",
+            "member_since": "2023-03-07",
+            "total_orders": 4,
+            "orders": [
+                {
+                    "order_id": "ORD-20009",
+                    "product": "Yoga Mat Premium Set",
+                    "category": "sports",
+                    "subcategory": "fitness",
+                    "amount": 79.99,
+                    "purchase_date": "2026-06-01",
+                    "delivery_date": "2026-06-04",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": "refunded",
+                    "refunded_at": "2026-06-07",
+                    "refund_amount": 79.99,
+                    "shipping_cost": 0.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM010",
+            "name": "James Lee",
+            "email": "james.lee@email.com",
+            "phone": "+1-555-0110",
+            "account_status": "active",
+            "tier": "silver",
+            "member_since": "2021-08-25",
+            "total_orders": 20,
+            "orders": [
+                {
+                    "order_id": "ORD-20010A",
+                    "product": "Mechanical Keyboard",
+                    "category": "electronics",
+                    "subcategory": "peripherals",
+                    "amount": 119.99,
+                    "purchase_date": "2026-06-03",
+                    "delivery_date": "2026-06-06",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 0.00
+                },
+                {
+                    "order_id": "ORD-20010B",
+                    "product": "Gaming Mouse",
+                    "category": "electronics",
+                    "subcategory": "peripherals",
+                    "amount": 69.99,
+                    "purchase_date": "2026-04-15",
+                    "delivery_date": "2026-04-18",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 0.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM011",
+            "name": "Kate Williams",
+            "email": "kate.williams@email.com",
+            "phone": "+1-555-0111",
+            "account_status": "active",
+            "tier": "bronze",
+            "member_since": "2022-05-12",
+            "total_orders": 9,
+            "orders": [
+                {
+                    "order_id": "ORD-20011",
+                    "product": "Bluetooth Portable Speaker",
+                    "category": "electronics",
+                    "subcategory": "audio",
+                    "amount": 89.99,
+                    "purchase_date": "2026-05-01",
+                    "delivery_date": "2026-05-04",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 0.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM012",
+            "name": "Liam Anderson",
+            "email": "liam.anderson@email.com",
+            "phone": "+1-555-0112",
+            "account_status": "active",
+            "tier": "silver",
+            "member_since": "2021-12-01",
+            "total_orders": 11,
+            "orders": [
+                {
+                    "order_id": "ORD-20012",
+                    "product": "KitchenAid Stand Mixer",
+                    "category": "appliances",
+                    "subcategory": "kitchen",
+                    "amount": 379.99,
+                    "purchase_date": "2026-06-08",
+                    "delivery_date": "2026-06-11",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": "damaged_shipping",
+                    "damage_description": "Box arrived crushed, mixer base has a visible dent",
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 29.99
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM013",
+            "name": "Maria Rodriguez",
+            "email": "maria.rodriguez@email.com",
+            "phone": "+1-555-0113",
+            "account_status": "active",
+            "tier": "gold",
+            "member_since": "2020-06-15",
+            "total_orders": 35,
+            "orders": [
+                {
+                    "order_id": "ORD-20013",
+                    "product": "MacBook Air M3 13-inch",
+                    "category": "electronics",
+                    "subcategory": "laptop",
+                    "amount": 1299.99,
+                    "purchase_date": "2026-06-10",
+                    "delivery_date": "2026-06-12",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 0.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM014",
+            "name": "Noah Taylor",
+            "email": "noah.taylor@email.com",
+            "phone": "+1-555-0114",
+            "account_status": "flagged",
+            "flag_reason": "High refund frequency — 3 refunds in 6 months",
+            "tier": "bronze",
+            "member_since": "2021-01-30",
+            "total_orders": 22,
+            "orders": [
+                {
+                    "order_id": "ORD-20014",
+                    "product": "Apple Watch Series 9",
+                    "category": "electronics",
+                    "subcategory": "wearables",
+                    "amount": 249.99,
+                    "purchase_date": "2026-06-05",
+                    "delivery_date": "2026-06-08",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 0.00
+                },
+                {
+                    "order_id": "ORD-20014B",
+                    "product": "Wireless Charger",
+                    "category": "electronics",
+                    "subcategory": "accessories",
+                    "amount": 34.99,
+                    "purchase_date": "2026-03-10",
+                    "delivery_date": "2026-03-13",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": "refunded",
+                    "refunded_at": "2026-03-20",
+                    "shipping_cost": 0.00
+                },
+                {
+                    "order_id": "ORD-20014C",
+                    "product": "Phone Case",
+                    "category": "accessories",
+                    "subcategory": "phone_accessories",
+                    "amount": 19.99,
+                    "purchase_date": "2026-02-15",
+                    "delivery_date": "2026-02-18",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": "refunded",
+                    "refunded_at": "2026-02-25",
+                    "shipping_cost": 0.00
+                },
+                {
+                    "order_id": "ORD-20014D",
+                    "product": "USB-C Hub 7-in-1",
+                    "category": "electronics",
+                    "subcategory": "accessories",
+                    "amount": 29.99,
+                    "purchase_date": "2026-01-20",
+                    "delivery_date": "2026-01-23",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": "refunded",
+                    "refunded_at": "2026-01-30",
+                    "shipping_cost": 0.00
+                }
+            ]
+        },
+        {
+            "customer_id": "CRM015",
+            "name": "Olivia White",
+            "email": "olivia.white@email.com",
+            "phone": "+1-555-0115",
+            "account_status": "active",
+            "tier": "platinum",
+            "member_since": "2019-08-11",
+            "total_orders": 87,
+            "notes": "VIP customer — handle with high priority",
+            "orders": [
+                {
+                    "order_id": "ORD-20015",
+                    "product": "Cashmere Sweater Set",
+                    "category": "clothing",
+                    "subcategory": "apparel",
+                    "amount": 229.99,
+                    "purchase_date": "2026-06-08",
+                    "delivery_date": "2026-06-10",
+                    "status": "delivered",
+                    "is_sale_item": false,
+                    "is_digital": false,
+                    "is_defective": false,
+                    "condition_reported": null,
+                    "was_downloaded": false,
+                    "refund_status": null,
+                    "shipping_cost": 0.00
                 }
             ]
         }
