@@ -183,10 +183,14 @@ The agent is pre-configured to handle various edge cases based on the mock data.
 
 ## 📸 Screenshots
 
-> **TODO:** Add screenshots or a GIF demonstrating the chat UI, the admin reasoning dashboard, and a successful refund flow.
-> 
-> *Example:*
-> `![Chat Interface Demo](./docs/demo.gif)`
+### 1. Refund Status Escalation
+![Refund Status Escalation](./assets/screenshots/screenshot1.png)
+
+### 2. CRM Check via Agent Tools
+![CRM Check via Agent Tools](./assets/screenshots/screenshot2.png)
+
+### 3. Agent Reasoning and Policy Validation Logs
+![Agent Reasoning and Policy Validation Logs](./assets/screenshots/screenshot3.png)
 
 ---
 
