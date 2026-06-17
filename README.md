@@ -185,6 +185,7 @@ The agent is pre-configured to handle various edge cases based on the mock data.
 
 ### 1. Refund Status Escalation
 ![Refund Status Escalation](./assets/screenshots/screenshot1.png)
+<img width="866" height="795" alt="Screenshot 2026-06-17 141801" src="https://github.com/user-attachments/assets/fb816e7e-d72e-4950-bde6-e4213acaf605" />
 
 ### 2. CRM Check via Agent Tools
 ![CRM Check via Agent Tools](./assets/screenshots/screenshot2.png)
