@@ -184,14 +184,15 @@ The agent is pre-configured to handle various edge cases based on the mock data.
 ## 📸 Screenshots
 
 ### 1. Refund Status Escalation
-![Refund Status Escalation](./assets/screenshots/screenshot1.png)
 <img width="866" height="795" alt="Screenshot 2026-06-17 141801" src="https://github.com/user-attachments/assets/fb816e7e-d72e-4950-bde6-e4213acaf605" />
 
 ### 2. CRM Check via Agent Tools
-![CRM Check via Agent Tools](./assets/screenshots/screenshot2.png)
+<img width="1838" height="532" alt="Screenshot 2026-06-17 141652" src="https://github.com/user-attachments/assets/4a81de9a-7de7-41e6-8eeb-eb43242bdb06" />
+
 
 ### 3. Agent Reasoning and Policy Validation Logs
-![Agent Reasoning and Policy Validation Logs](./assets/screenshots/screenshot3.png)
+<img width="1784" height="870" alt="Screenshot 2026-06-17 141626" src="https://github.com/user-attachments/assets/35235e44-b9ef-45ac-b396-ad740893ba52" />
+
 
 ---
 
